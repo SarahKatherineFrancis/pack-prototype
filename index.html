@@ -1,0 +1,1376 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="A prototype of Pack — meet people in Shanghai, let the dogs do the introductions.">
+<title>Pack Shanghai</title>
+<style>:root{color-scheme:light dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Pack Shanghai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+
+<style>
+:root{
+  --paper:#EEF1EC; --surface:#FFFFFF; --surface-2:#F6F8F4; --surface-3:#E7EDE6;
+  --ink:#16201B; --ink-2:#4A5751; --ink-3:#7C8983;
+  --line:#DBE2DA; --line-2:#C6D2C6;
+  --brand:#1F6F4A; --brand-ink:#12452E; --brand-soft:#DCEDE2;
+  --action:#C9542F; --action-soft:#F8E3DA;
+  --gold:#A9761F; --gold-soft:#F3E7CE;
+  --shadow:0 1px 2px rgba(22,32,27,.06), 0 10px 30px -12px rgba(22,32,27,.22);
+  --shadow-card:0 2px 4px rgba(22,32,27,.07), 0 24px 44px -20px rgba(22,32,27,.35);
+  --cjk:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC";
+  --font-display:"Bricolage Grotesque","Avenir Next","Trebuchet MS",system-ui,var(--cjk),sans-serif;
+  --font-body:"Figtree",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,var(--cjk),sans-serif;
+  --font-mono:"DM Mono","SFMono-Regular",Menlo,Consolas,var(--cjk),monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0D1411; --surface:#16201B; --surface-2:#1C2822; --surface-3:#24332B;
+    --ink:#E9EFEA; --ink-2:#A9B7AE; --ink-3:#7C8B82;
+    --line:#2A3830; --line-2:#36473C;
+    --brand:#5CBF8B; --brand-ink:#A6E0C0; --brand-soft:#1A3227;
+    --action:#E87A52; --action-soft:#38200F;
+    --gold:#D9A94A; --gold-soft:#332715;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 30px -12px rgba(0,0,0,.7);
+    --shadow-card:0 2px 6px rgba(0,0,0,.55), 0 24px 44px -18px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0D1411; --surface:#16201B; --surface-2:#1C2822; --surface-3:#24332B;
+  --ink:#E9EFEA; --ink-2:#A9B7AE; --ink-3:#7C8B82;
+  --line:#2A3830; --line-2:#36473C;
+  --brand:#5CBF8B; --brand-ink:#A6E0C0; --brand-soft:#1A3227;
+  --action:#E87A52; --action-soft:#38200F;
+  --gold:#D9A94A; --gold-soft:#332715;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 30px -12px rgba(0,0,0,.7);
+  --shadow-card:0 2px 6px rgba(0,0,0,.55), 0 24px 44px -18px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--font-body); font-size:15px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--action);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+
+/* ---------- shell ---------- */
+.stage{min-height:100%;display:flex;flex-direction:column;align-items:center;gap:0}
+.ribbon{
+  width:100%;background:var(--ink);color:var(--paper);
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  display:flex;justify-content:center;gap:10px;align-items:center;
+  padding:7px 16px;text-align:center;
+}
+.ribbon b{color:var(--action);font-weight:500}
+.frame-wrap{width:100%;flex:1;display:flex;justify-content:center;padding:0}
+.phone{
+  width:100%;max-width:430px;background:var(--surface);
+  display:flex;flex-direction:column;position:relative;overflow:hidden;
+  min-height:0;flex:1;
+}
+@media (min-width:760px){
+  .frame-wrap{padding:28px 16px 40px}
+  .phone{
+    flex:0 0 auto;height:820px;border-radius:30px;border:1px solid var(--line-2);
+    box-shadow:var(--shadow-card);
+  }
+}
+
+/* ---------- app chrome ---------- */
+.appbar{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-bottom:1px solid var(--line);background:var(--surface);flex:0 0 auto;
+}
+.appbar .back{width:32px;height:32px;display:grid;place-items:center;border-radius:50%;color:var(--ink-2)}
+.appbar .back:hover{background:var(--surface-2)}
+.wordmark{font-family:var(--font-display);font-weight:800;font-size:17px;letter-spacing:-.02em}
+.wordmark span{color:var(--brand)}
+.step{margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--ink-3)}
+.screen{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 18px 26px;display:none}
+.screen.on{display:block;animation:rise .28s ease}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.footer-bar{
+  flex:0 0 auto;padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px));
+  border-top:1px solid var(--line);background:var(--surface);display:flex;gap:10px;
+}
+
+/* ---------- type ---------- */
+h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance;letter-spacing:-.02em}
+h1{font-size:27px;font-weight:700;line-height:1.14}
+h2{font-size:20px;font-weight:700;line-height:1.2}
+h3{font-size:15px;font-weight:700}
+p{margin:0}
+.lede{color:var(--ink-2);font-size:15px;margin-top:10px}
+.eyebrow{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--brand);font-weight:500;
+}
+.muted{color:var(--ink-3);font-size:13px}
+.stack{display:flex;flex-direction:column;gap:18px}
+.stack-sm{display:flex;flex-direction:column;gap:10px}
+
+/* ---------- controls ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:13px 18px;border-radius:12px;font-weight:600;font-size:15px;
+  background:var(--action);color:#fff;transition:transform .12s ease,filter .12s ease;
+  width:100%;text-align:center;
+}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.btn.ghost{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
+.btn.brand{background:var(--brand);color:#fff}
+:root[data-theme="dark"] .btn.brand,
+:root:not([data-theme="light"]) .btn.brand{color:#08130D}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .btn.brand{color:#fff}}
+.btn.small{width:auto;padding:9px 14px;font-size:13px;border-radius:10px}
+
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:600;color:var(--ink-2)}
+.field input,.field select,.field textarea{
+  width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);
+  background:var(--surface-2);
+}
+.field textarea{min-height:76px;resize:vertical}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  padding:9px 13px;border-radius:999px;border:1px solid var(--line);
+  background:var(--surface-2);font-size:13.5px;font-weight:500;color:var(--ink-2);
+  transition:background .14s ease,border-color .14s ease,color .14s ease;
+}
+.chip[aria-pressed="true"]{background:var(--brand-soft);border-color:var(--brand);color:var(--brand-ink);font-weight:600}
+
+.scale{display:flex;gap:6px}
+.scale button{
+  flex:1;padding:10px 0;border-radius:9px;border:1px solid var(--line);background:var(--surface-2);
+  font-family:var(--font-mono);font-size:13px;color:var(--ink-2);
+}
+.scale button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.scale-ends{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-3);margin-top:5px}
+
+/* ---------- avatars ---------- */
+.ava{
+  position:relative;border-radius:14px;overflow:hidden;flex:0 0 auto;
+  display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:800;
+}
+.ava .glyph{position:relative;z-index:2;text-shadow:0 1px 8px rgba(0,0,0,.28)}
+.ava .tag{
+  position:absolute;z-index:2;bottom:0;left:0;right:0;padding:4px 8px;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;
+  background:linear-gradient(transparent,rgba(0,0,0,.55));text-align:left;font-weight:400;
+}
+
+/* ---------- discovery card ---------- */
+.deck{position:relative;height:452px;margin-top:14px}
+.card{
+  position:absolute;inset:0;background:var(--surface);border:1px solid var(--line);
+  border-radius:20px;box-shadow:var(--shadow-card);overflow:hidden;
+  display:flex;flex-direction:column;touch-action:pan-y;
+}
+.card.behind{transform:scale(.955) translateY(12px);box-shadow:var(--shadow);opacity:.85}
+.card .photo{height:210px;position:relative;display:grid;place-items:center}
+.card .photo .glyph{font-family:var(--font-display);font-weight:800;font-size:62px;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.3)}
+.card .photo .dist{
+  position:absolute;top:12px;right:12px;background:rgba(10,18,14,.62);color:#fff;
+  font-family:var(--font-mono);font-size:11px;padding:5px 9px;border-radius:999px;
+}
+.card .photo .ph{
+  position:absolute;bottom:10px;left:12px;font-family:var(--font-mono);font-size:9.5px;
+  letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.7);
+}
+.card .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:9px;overflow:hidden}
+.pair{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.pair .names{font-family:var(--font-display);font-size:21px;font-weight:700;letter-spacing:-.02em}
+.pair .meta{font-size:12.5px;color:var(--ink-3)}
+.rowline{display:flex;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2)}
+.tag{background:var(--surface-2);border:1px solid var(--line);padding:3px 9px;border-radius:999px;font-size:12px}
+.tag.brand{background:var(--brand-soft);border-color:transparent;color:var(--brand-ink)}
+.wants{font-size:13.5px;color:var(--ink-2);border-left:2px solid var(--brand);padding-left:10px}
+.swipe-stamp{
+  position:absolute;top:22px;font-family:var(--font-display);font-weight:800;font-size:24px;
+  letter-spacing:.06em;padding:6px 12px;border-radius:10px;border:3px solid;opacity:0;
+  transform:rotate(-8deg);pointer-events:none;z-index:5;
+}
+.swipe-stamp.yes{left:18px;color:var(--brand);border-color:var(--brand)}
+.swipe-stamp.no{right:18px;color:var(--action);border-color:var(--action);transform:rotate(8deg)}
+.deck-actions{display:flex;justify-content:center;gap:16px;margin-top:16px}
+.round{
+  width:58px;height:58px;border-radius:50%;display:grid;place-items:center;
+  background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);
+  font-size:22px;transition:transform .12s ease;
+}
+.round:active{transform:scale(.93)}
+.round.yes{background:var(--brand);border-color:var(--brand);color:#fff}
+.round.no{color:var(--action)}
+
+/* ---------- match ---------- */
+.score-hero{text-align:center;padding:22px 0 6px}
+.score-num{font-family:var(--font-display);font-size:64px;font-weight:800;line-height:1;color:var(--brand);letter-spacing:-.04em}
+.score-num small{font-size:24px;font-weight:700}
+.faces{display:flex;justify-content:center;align-items:center;gap:-10px;margin-bottom:14px}
+.faces .ava{width:76px;height:76px;border-radius:50%;border:3px solid var(--surface);font-size:26px}
+.faces .ava:nth-child(2){margin-left:-16px}
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar-row{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center}
+.bar-row .lbl{font-size:13px;color:var(--ink-2)}
+.bar-row .val{font-family:var(--font-mono);font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.bar-track{grid-column:1/-1;height:6px;border-radius:3px;background:var(--surface-3);overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;background:var(--brand);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.why{background:var(--brand-soft);border-radius:14px;padding:14px 15px;color:var(--brand-ink)}
+.why h3{margin-bottom:6px}
+.why p{font-size:14px;line-height:1.5}
+
+/* ---------- meetup ---------- */
+.plan{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surface)}
+.plan .head{padding:14px 16px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.plan .head .when{font-family:var(--font-mono);font-size:12px;color:var(--action);letter-spacing:.06em}
+.plan .head .where{font-family:var(--font-display);font-size:19px;font-weight:700;margin-top:3px}
+.plan .rows{display:flex;flex-direction:column}
+.plan .r{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);align-items:flex-start}
+.plan .r:last-child{border-bottom:0}
+.plan .r .k{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);width:64px;flex:0 0 64px;padding-top:2px}
+.plan .r .v{font-size:14px;flex:1}
+.who{display:flex;gap:10px;flex-wrap:wrap}
+.who .p{display:flex;flex-direction:column;align-items:center;gap:5px;width:60px}
+.who .ava{width:46px;height:46px;border-radius:50%;font-size:17px}
+.who .n{font-size:11px;color:var(--ink-2);text-align:center;line-height:1.25}
+
+.activity-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.act{
+  border:1px solid var(--line);background:var(--surface-2);border-radius:14px;padding:14px 12px;
+  display:flex;flex-direction:column;gap:4px;text-align:left;
+}
+.act[aria-pressed="true"]{border-color:var(--action);background:var(--action-soft)}
+.act .t{font-weight:600;font-size:14px}
+.act .s{font-size:11.5px;color:var(--ink-3)}
+
+/* ---------- group ---------- */
+.group-card{border:1px solid var(--line);border-radius:16px;padding:15px;background:var(--surface);display:flex;flex-direction:column;gap:10px}
+.spots{display:flex;gap:4px;align-items:center}
+.spot{width:22px;height:22px;border-radius:50%;border:1.5px dashed var(--line-2)}
+.spot.filled{border:0;background:var(--brand)}
+
+/* ---------- feedback ---------- */
+.q{border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:9px}
+.q:first-of-type{border-top:0;padding-top:0}
+.q .qt{font-weight:600;font-size:14.5px}
+.q .qn{font-family:var(--font-mono);font-size:11px;color:var(--action);letter-spacing:.1em}
+.opts{display:flex;gap:7px;flex-wrap:wrap}
+.opt{
+  padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);
+  font-size:13.5px;font-weight:500;flex:1;min-width:84px;text-align:center;
+}
+.opt[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+.log-out{
+  width:100%;min-height:240px;font-family:var(--font-mono);font-size:12px;line-height:1.55;
+  padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);
+}
+.notice{
+  border:1px dashed var(--line-2);border-radius:12px;padding:12px 14px;
+  font-size:13px;color:var(--ink-2);background:var(--surface-2);
+}
+
+/* ---------- welcome ---------- */
+.hero{padding:26px 2px 0}
+.hero .mark{font-family:var(--font-display);font-size:46px;font-weight:800;letter-spacing:-.04em;line-height:1}
+.hero .mark em{font-style:normal;color:var(--brand)}
+.hero .tagline{font-family:var(--font-display);font-size:19px;font-weight:500;color:var(--ink-2);margin-top:10px;line-height:1.3}
+.loop{display:flex;flex-direction:column;gap:0;margin-top:22px}
+.loop .s{display:flex;gap:12px;align-items:flex-start;padding:9px 0}
+.loop .n{font-family:var(--font-mono);font-size:11px;color:var(--brand);width:22px;flex:0 0 22px;padding-top:3px}
+.loop .tx{font-size:14px}
+.loop .tx b{font-weight:600}
+.loop .tx span{display:block;color:var(--ink-3);font-size:12.5px}
+</style>
+
+</head>
+<body>
+<div class="stage">
+  <div class="ribbon"><b>Prototype</b> · fake data · Shanghai test build</div>
+  <div class="frame-wrap">
+  <div class="phone">
+
+    <div class="appbar">
+      <button class="back" id="back" hidden aria-label="Back">&#8592;</button>
+      <div class="wordmark">Pack<span>.</span></div>
+      <div class="step" id="stepLabel"></div>
+    </div>
+
+    <!-- 1 WELCOME -->
+    <section class="screen on" id="s-welcome">
+      <div class="hero">
+        <div class="mark">Find your <em>pack</em>.</div>
+        <div class="tagline">Meet people in Shanghai. Let the dogs do the introductions.</div>
+      </div>
+      <div class="loop">
+        <div class="s"><div class="n">01</div><div class="tx"><b>Tell us who you're after</b><span>People, walks, places — or all three</span></div></div>
+        <div class="s"><div class="n">02</div><div class="tx"><b>Add you and your dog</b><span>Energy, size, temperament, neighbourhood</span></div></div>
+        <div class="s"><div class="n">03</div><div class="tx"><b>See who's compatible nearby</b><span>Owner and dog together, not one or the other</span></div></div>
+        <div class="s"><div class="n">04</div><div class="tx"><b>Get given a plan</b><span>A place, a time, and who else is coming</span></div></div>
+      </div>
+      <div class="notice" style="margin-top:22px">
+        <b>This is a prototype, not a real app.</b> Every profile in it is invented. Tap through it as though it were real — about five minutes — and there are a few questions at the end. Honest answers are worth far more than kind ones.
+      </div>
+      <div style="margin-top:18px"><button class="btn" data-go="s-intent">Start</button></div>
+      <div style="margin-top:10px"><button class="btn ghost" data-go="s-feedback">Skip to the questions</button></div>
+    </section>
+
+    <!-- 2 INTENT -->
+    <section class="screen" id="s-intent">
+      <div class="eyebrow">First things first</div>
+      <h1 style="margin-top:8px">What are you actually looking for?</h1>
+      <p class="lede">Pick as many as are true. This is the question no other pet app asks.</p>
+      <div class="chips" id="intentChips" style="margin-top:18px"></div>
+      <div class="notice" style="margin-top:20px">We ask about <b>you</b> before we ask about your dog. That ordering is deliberate — tell us if it feels wrong.</div>
+    </section>
+
+    <!-- 3 OWNER -->
+    <section class="screen" id="s-owner">
+      <div class="eyebrow">About you</div>
+      <h1 style="margin-top:8px">The human half</h1>
+      <div class="stack" style="margin-top:18px">
+        <div class="field"><label for="oName">Your name</label><input id="oName" placeholder="Sarah" autocomplete="off"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="field"><label for="oAge">Age range</label>
+            <select id="oAge"><option>18–24</option><option selected>25–34</option><option>35–44</option><option>45+</option></select></div>
+          <div class="field"><label for="oHood">Neighbourhood</label>
+            <select id="oHood"></select></div>
+        </div>
+        <div class="field"><label>Languages</label><div class="chips" id="langChips"></div></div>
+        <div class="field"><label>What you're into</label><div class="chips" id="interestChips"></div></div>
+      </div>
+    </section>
+
+    <!-- 4 PET -->
+    <section class="screen" id="s-pet">
+      <div class="eyebrow">About your dog</div>
+      <h1 style="margin-top:8px">The other half</h1>
+      <div class="stack" style="margin-top:18px">
+        <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:12px">
+          <div class="field"><label for="pName">Dog's name</label><input id="pName" placeholder="Milo" autocomplete="off"></div>
+          <div class="field"><label for="pAge">Age</label>
+            <select id="pAge"><option>Under 1</option><option selected>1–3</option><option>4–7</option><option>8+</option></select></div>
+        </div>
+        <div class="field"><label for="pBreed">Breed</label><input id="pBreed" placeholder="Golden Retriever" autocomplete="off"></div>
+        <div class="field"><label>Size</label><div class="chips" id="sizeChips"></div></div>
+        <div class="field"><label>Energy</label>
+          <div class="scale" id="energyScale"></div>
+          <div class="scale-ends"><span>Sofa dog</span><span>Never stops</span></div>
+        </div>
+        <div class="field"><label>How is she with other dogs?</label>
+          <div class="scale" id="socialScale"></div>
+          <div class="scale-ends"><span>Needs space</span><span>Loves everyone</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 PREFS -->
+    <section class="screen" id="s-prefs">
+      <div class="eyebrow">Almost done</div>
+      <h1 style="margin-top:8px">When, and what kind of thing?</h1>
+      <div class="stack" style="margin-top:18px">
+        <div class="field"><label>When you're usually free</label><div class="chips" id="availChips"></div></div>
+        <div class="field"><label>What you'd actually turn up to</label><div class="chips" id="actChips"></div></div>
+        <div class="field"><label>Group size you'd prefer</label><div class="chips" id="groupChips"></div></div>
+      </div>
+      <div class="notice" style="margin-top:20px">Your exact address is never used. Matching works on neighbourhood and approximate distance only.</div>
+    </section>
+
+    <!-- 6 DISCOVER -->
+    <section class="screen" id="s-discover">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <div><div class="eyebrow">Nearby</div><h2 style="margin-top:6px">Who's around this week</h2></div>
+        <div class="muted" id="deckCount"></div>
+      </div>
+      <div class="deck" id="deck"></div>
+      <div class="deck-actions">
+        <button class="round no" id="passBtn" aria-label="Pass">&#10005;</button>
+        <button class="round yes" id="likeBtn" aria-label="Like">&#10084;</button>
+      </div>
+      <p class="muted" style="text-align:center;margin-top:12px">Swipe the card, or use the buttons.</p>
+    </section>
+
+    <!-- 7 MATCH -->
+    <section class="screen" id="s-match">
+      <div class="score-hero">
+        <div class="faces" id="matchFaces"></div>
+        <div class="eyebrow" style="color:var(--action)">It's a match</div>
+        <div class="score-num" id="scoreNum">0<small>%</small></div>
+        <p class="muted" id="matchNames" style="margin-top:4px"></p>
+      </div>
+      <div class="why" style="margin-top:14px">
+        <h3>Why you two might get along</h3>
+        <p id="whyText"></p>
+      </div>
+      <div style="margin-top:18px">
+        <div class="eyebrow" style="color:var(--ink-3)">How that number is built</div>
+        <div class="bars" id="scoreBars" style="margin-top:10px"></div>
+      </div>
+    </section>
+
+    <!-- 8 ACTIVITY -->
+    <section class="screen" id="s-activity">
+      <div class="eyebrow">Now the useful bit</div>
+      <h1 style="margin-top:8px">What do you want to do?</h1>
+      <p class="lede">Most apps stop at the match. This is where the app earns its place.</p>
+      <div class="activity-grid" id="activityGrid" style="margin-top:18px"></div>
+    </section>
+
+    <!-- 9 MEETUP -->
+    <section class="screen" id="s-meetup">
+      <div class="eyebrow">Suggested plan</div>
+      <h1 style="margin-top:8px" id="meetupTitle">Saturday, 16:00</h1>
+      <p class="lede">Built from both your schedules, both dogs, and where you both are.</p>
+      <div class="plan" style="margin-top:16px">
+        <div class="head">
+          <div class="when" id="planWhen"></div>
+          <div class="where" id="planWhere"></div>
+        </div>
+        <div class="rows">
+          <div class="r"><div class="k">Why here</div><div class="v" id="planWhy"></div></div>
+          <div class="r"><div class="k">Getting there</div><div class="v" id="planTravel"></div></div>
+          <div class="r"><div class="k">Who's in</div><div class="v"><div class="who" id="planWho"></div></div></div>
+          <div class="r"><div class="k">After</div><div class="v" id="planAfter"></div></div>
+        </div>
+      </div>
+      <div class="notice" style="margin-top:16px">Venues in this prototype are placeholders except the parks. A real build would need a verified pet-friendly venue list.</div>
+    </section>
+
+    <!-- 10 GROUP -->
+    <section class="screen" id="s-group">
+      <div class="eyebrow">Or join something bigger</div>
+      <h1 style="margin-top:8px">Small groups near you</h1>
+      <p class="lede">Four to six people means somebody will click with somebody. One-on-one is all or nothing.</p>
+      <div class="stack-sm" id="groupList" style="margin-top:18px"></div>
+    </section>
+
+    <!-- 11 FEEDBACK -->
+    <section class="screen" id="s-feedback">
+      <div class="eyebrow" style="color:var(--action)">Last part</div>
+      <h1 style="margin-top:8px">Be honest — it's more useful than being kind</h1>
+      <p class="lede">Nine questions. Nothing here is a sales pitch.</p>
+      <div class="stack" style="margin-top:20px" id="qList"></div>
+      <div style="margin-top:22px"><button class="btn" data-go="s-done">Finish</button></div>
+    </section>
+
+    <!-- 12 DONE -->
+    <section class="screen" id="s-done">
+      <div class="eyebrow">Thank you</div>
+      <h1 style="margin-top:8px">That's the whole idea.</h1>
+      <p class="lede" id="doneLede">One last thing — send your answers over so we can actually read them.</p>
+      <div id="sendBox" style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
+        <button class="btn" id="submitBtn">Send my answers</button>
+        <span class="muted" id="submitMsg"></span>
+      </div>
+      <div class="notice" id="localNote" style="margin-top:18px" hidden>
+        <b>Saved to this device.</b> Session <span id="sessionNo">1</span> of <span id="sessionTotal">1</span> recorded here.
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn ghost" id="restartBtn">Start a fresh session</button>
+      </div>
+      <details style="margin-top:22px">
+        <summary class="muted" style="cursor:pointer">See or copy what was recorded</summary>
+        <div style="margin-top:12px">
+          <button class="btn ghost small" id="copyBtn">Copy this session</button>
+          <span class="muted" id="copyMsg" style="margin-left:10px"></span>
+        </div>
+        <textarea class="log-out" id="logOut" readonly style="margin-top:12px"></textarea>
+      </details>
+    </section>
+
+    <!-- 13 SESSIONS (host only) -->
+    <section class="screen" id="s-sessions">
+      <div class="eyebrow" style="color:var(--action)">Host view</div>
+      <h1 style="margin-top:8px">Sessions on this device</h1>
+      <p class="lede" id="sessSummary">No sessions yet.</p>
+      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn ghost small" id="csvBtn">Copy as CSV</button>
+        <button class="btn ghost small" id="txtBtn">Copy as text</button>
+        <button class="btn ghost small" id="clearBtn">Clear all</button>
+      </div>
+      <span class="muted" id="sessMsg"></span>
+      <div class="stack-sm" id="sessList" style="margin-top:18px"></div>
+      <textarea class="log-out" id="sessOut" readonly style="margin-top:16px" hidden></textarea>
+      <div style="margin-top:18px"><button class="btn ghost" data-go="s-welcome">Back to the app</button></div>
+    </section>
+
+    <div class="footer-bar" id="footer">
+      <button class="btn" id="nextBtn">Continue</button>
+    </div>
+
+  </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   CONFIG — where remote testers' answers go
+   ------------------------------------------------------------
+   Three modes, in order of preference. Fill in whichever you
+   have; the page picks the best one available.
+
+   1. SILENT POST (best — one tap, tester never leaves the app)
+      Google Form: create a form with ONE long-answer question,
+      open it, View source, search for "entry." to find the id.
+        FORM_ACTION = "https://docs.google.com/forms/d/e/XXXX/formResponse"
+        FORM_FIELD  = "entry.123456789"
+      Note: Google is blocked on mainland connections without a
+      VPN. Fine for expat testers, not for local ones.
+
+   2. PREFILLED LINK (works in China — 金数据 / 腾讯问卷)
+        FORM_LINK = "https://jinshuju.net/f/XXXXXX?field_1="
+        FORM_LINK = "https://wj.qq.com/s2/XXXXXX/?q1="
+      Keep the trailing "=" — the session text is appended.
+
+   3. NEITHER — the session stays on the tester's own device and
+      they copy it to you. Always available as a fallback.
+
+   Every session is also saved locally regardless, so nothing is
+   ever lost to a failed submit.
+   ============================================================ */
+var FORM_ACTION = "https://docs.google.com/forms/d/e/1FAIpQLSei1R9bSG172wn-TgPsyL1w-112QboJZePgicO1xmt815EgyA/formResponse";
+var FORM_FIELD  = "entry.878024238";
+var FORM_LINK   = "";
+var ARCHIVE_KEY = "pack_sessions_v1";
+
+/* ============================================================
+   SEED DATA — 14 Shanghai owner + dog pairs
+   ============================================================ */
+var HOODS = ["Xuhui","Jing'an","Former French Concession","Changning","Hongkou","Putuo","Yangpu","Pudong","Minhang"];
+var HOOD_XY = {"Xuhui":[0,0],"Jing'an":[2.4,1.1],"Former French Concession":[1.2,.9],"Changning":[-3.6,2.2],
+  "Hongkou":[5.2,4.4],"Putuo":[-1.8,5.2],"Yangpu":[6.6,5.4],"Pudong":[8.4,-2.2],"Minhang":[-6.4,-8.2]};
+
+var INTERESTS = ["Running","Coffee","Brunch","Hiking","Photography","Food","Cycling","Film","Yoga","Reading","Live music","Travel","Markets","Swimming","Gaming"];
+var ACTIVITIES = ["Long walk","Short walk","Dog park","Café","Brunch","Group walk","Hiking day"];
+var AVAIL = ["Weekday morning","Weekday evening","Weekend morning","Weekend afternoon"];
+var LANGS = ["English","中文","Français","Español","Deutsch"];
+var INTENTS = ["Make new friends","Find friends for my dog","Find people for walks","Discover pet-friendly places",
+  "Join small social groups","Meet people new to Shanghai","Meet other expats","Dating","Just get out of the house"];
+
+var PEOPLE = [
+ {id:1, owner:"Alex", age:"25–34", dog:"Milo", breed:"Golden Retriever", dogAge:3, size:3, energy:5, social:5,
+  hood:"Xuhui", langs:["English","中文"], interests:["Running","Coffee","Photography"],
+  acts:["Long walk","Dog park","Café"], avail:["Weekend morning","Weekday evening"],
+  wants:"Weekend walks and people I'd actually see again."},
+ {id:2, owner:"陈欣 Xin", age:"25–34", dog:"豆豆 Doudou", breed:"Shiba Inu", dogAge:2, size:2, energy:4, social:3,
+  hood:"Jing'an", langs:["中文","English"], interests:["Brunch","Markets","Photography"],
+  acts:["Café","Short walk","Brunch"], avail:["Weekend afternoon"],
+  wants:"Somewhere new every weekend. Doudou judges people, fair warning."},
+ {id:3, owner:"Priya", age:"25–34", dog:"Nala", breed:"Border Collie", dogAge:4, size:2, energy:5, social:4,
+  hood:"Changning", langs:["English"], interests:["Hiking","Running","Reading"],
+  acts:["Group walk","Dog park","Hiking day"], avail:["Weekend morning"],
+  wants:"New to Shanghai in March. Nala needs a job and I need a group."},
+ {id:4, owner:"王磊 Lei", age:"35–44", dog:"芝麻 Zhima", breed:"Corgi", dogAge:5, size:1, energy:3, social:5,
+  hood:"Former French Concession", langs:["中文"], interests:["Cycling","Food","Film"],
+  acts:["Café","Short walk"], avail:["Weekday evening"],
+  wants:"After-work walks. Zhima has never disliked anyone."},
+ {id:5, owner:"Marta", age:"25–34", dog:"Kiko", breed:"French Bulldog", dogAge:1, size:1, energy:3, social:4,
+  hood:"Xuhui", langs:["English","Español"], interests:["Brunch","Yoga","Coffee"],
+  acts:["Café","Brunch","Short walk"], avail:["Weekend afternoon"],
+  wants:"Slow Sunday things. Kiko cannot walk far and neither can I before noon."},
+ {id:6, owner:"李思 Si", age:"45+", dog:"汤圆 Tangyuan", breed:"Bichon Frisé", dogAge:6, size:1, energy:2, social:3,
+  hood:"Hongkou", langs:["中文"], interests:["Reading","Food","Markets"],
+  acts:["Short walk","Dog park"], avail:["Weekday morning"],
+  wants:"Quiet morning company. No big dogs, please."},
+ {id:7, owner:"Daniel", age:"25–34", dog:"Suki", breed:"Australian Shepherd", dogAge:2, size:3, energy:5, social:4,
+  hood:"Putuo", langs:["English","Deutsch"], interests:["Running","Hiking","Live music"],
+  acts:["Group walk","Hiking day","Long walk"], avail:["Weekend morning","Weekday evening"],
+  wants:"Someone who runs. Suki has more energy than my whole week."},
+ {id:8, owner:"赵敏 Min", age:"25–34", dog:"布丁 Buding", breed:"Toy Poodle", dogAge:3, size:1, energy:3, social:5,
+  hood:"Pudong", langs:["中文","English"], interests:["Brunch","Photography","Travel"],
+  acts:["Café","Brunch"], avail:["Weekend afternoon"],
+  wants:"Cafés that actually let dogs inside. The list is shorter than people think."},
+ {id:9, owner:"Tom", age:"35–44", dog:"Ruby", breed:"Labrador", dogAge:7, size:3, energy:3, social:5,
+  hood:"Yangpu", langs:["English"], interests:["Food","Reading","Live music"],
+  acts:["Long walk","Dog park"], avail:["Weekend morning"],
+  wants:"Ruby is old and friendly. I mostly want the conversation."},
+ {id:10, owner:"周雨 Yu", age:"18–24", dog:"奶茶 Naicha", breed:"Golden Retriever", dogAge:1, size:3, energy:5, social:5,
+  hood:"Xuhui", langs:["中文","English"], interests:["Swimming","Running","Live music"],
+  acts:["Dog park","Group walk","Long walk"], avail:["Weekend morning","Weekend afternoon"],
+  wants:"Puppy chaos, ideally with other puppies so it's not only my problem."},
+ {id:11, owner:"Camille", age:"35–44", dog:"Olive", breed:"Whippet", dogAge:4, size:2, energy:4, social:2,
+  hood:"Former French Concession", langs:["Français","English"], interests:["Film","Reading","Coffee"],
+  acts:["Long walk","Café"], avail:["Weekday evening"],
+  wants:"One person, one dog. Olive finds groups overwhelming and honestly so do I."},
+ {id:12, owner:"孙浩 Hao", age:"25–34", dog:"大白 Dabai", breed:"Samoyed", dogAge:2, size:3, energy:4, social:5,
+  hood:"Minhang", langs:["中文"], interests:["Gaming","Food","Cycling"],
+  acts:["Dog park","Group walk"], avail:["Weekend afternoon"],
+  wants:"Big group, big dogs, somewhere with shade."},
+ {id:13, owner:"Aisha", age:"25–34", dog:"Pepper", breed:"Jack Russell", dogAge:5, size:1, energy:5, social:3,
+  hood:"Jing'an", langs:["English"], interests:["Running","Reading","Coffee"],
+  acts:["Short walk","Dog park","Long walk"], avail:["Weekday morning","Weekday evening"],
+  wants:"6am walks before work. Pepper is small and thinks she isn't."},
+ {id:14, owner:"林可 Ke", age:"25–34", dog:"可乐 Kele", breed:"Beagle", dogAge:3, size:2, energy:4, social:4,
+  hood:"Changning", langs:["中文","English"], interests:["Food","Travel","Photography"],
+  acts:["Café","Group walk","Brunch"], avail:["Weekend afternoon","Weekday evening"],
+  wants:"Eating our way around the city with a dog attached."}
+];
+
+var VENUES = {
+ "Dog park":[{n:"Xujiahui Park",hood:"Xuhui",why:"Open lawn, fenced, dogs off-lead before 9am."},
+             {n:"Jing'an Sculpture Park",hood:"Jing'an",why:"Central, shaded paths, easy from three metro lines."},
+             {n:"Zhongshan Park",hood:"Changning",why:"Big enough that two dogs can meet without an audience."}],
+ "Café":[{n:"The Green Room",hood:"Former French Concession",why:"Courtyard seating, water bowls, dogs inside when it rains."},
+         {n:"Paw & Pour",hood:"Xuhui",why:"Built for this — half the tables have a hook for a lead."}],
+ "Brunch":[{n:"Sunday Bakehouse",hood:"Jing'an",why:"Outdoor terrace, no time limit on tables at weekends."}],
+ "Long walk":[{n:"Xuhui Riverside",hood:"Xuhui",why:"8km of flat path along the water, almost no traffic."},
+              {n:"Suzhou Creek path",hood:"Putuo",why:"Long, quiet, good for dogs that pull."}],
+ "Short walk":[{n:"Wukang Road loop",hood:"Former French Concession",why:"Plane trees, 25 minutes, ends at coffee."}],
+ "Group walk":[{n:"Century Park",hood:"Pudong",why:"Room for six dogs without anyone feeling crowded."},
+               {n:"Fuxing Park",hood:"Former French Concession",why:"Central meeting point everyone can reach."}],
+ "Hiking day":[{n:"Sheshan",hood:"Minhang",why:"Real hills, 40 minutes out, worth the trip for high-energy dogs."}]
+};
+
+var GROUPS = [
+ {name:"Saturday Morning Pack", when:"Sat 09:00 · Xuhui Riverside", size:6, filled:4, note:"Fast walk, big dogs, coffee after.", tags:["Weekend morning","Long walk"]},
+ {name:"Frenchies & Coffee", when:"Sun 11:00 · Wukang Road", size:6, filled:5, note:"Small dogs, short legs, long brunch.", tags:["Weekend afternoon","Café"]},
+ {name:"Dog Parents After Work", when:"Wed 19:00 · Jing'an Sculpture Park", size:8, filled:3, note:"Mid-week decompression. No agenda.", tags:["Weekday evening","Short walk"]},
+ {name:"New in Shanghai + Dogs", when:"Sat 15:00 · Fuxing Park", size:8, filled:6, note:"Everyone has been here under a year.", tags:["Weekend afternoon","Group walk"]}
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+var me = {
+  name:"", age:"25–34", hood:"Xuhui", langs:["English"], interests:[],
+  dog:"", dogAge:"1–3", breed:"", size:2, energy:3, social:3,
+  avail:[], acts:[], group:"", intents:[]
+};
+var log = { started:new Date().toISOString(), swipes:[], answers:{}, chosenActivity:"", matched:null };
+var SCREENS = ["s-welcome","s-intent","s-owner","s-pet","s-prefs","s-discover","s-match","s-activity","s-meetup","s-group","s-feedback","s-done"];
+var current = "s-welcome";
+var deckQueue = [], matchedPerson = null, matchDetail = null;
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function $(id){ return document.getElementById(id); }
+function el(tag, cls, txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
+var DUOS = [
+  ["#2A7A55","#14523A"], ["#2C6E7F","#1A4A59"], ["#8A6A22","#5C4512"],
+  ["#B5502C","#7C3318"], ["#4E6F31","#33491F"], ["#3A5C80","#243D57"], ["#7A4A62","#523044"]
+];
+function hashOf(str){ var h=0; for(var i=0;i<str.length;i++){ h=(h*31+str.charCodeAt(i))>>>0; } return h; }
+function avatarStyle(seed){
+  var d = DUOS[hashOf(seed)%DUOS.length];
+  return "background:linear-gradient(150deg,"+d[0]+","+d[1]+")";
+}
+function initial(str){
+  var m = str.match(/[A-Za-z]/);
+  if(m) return m[0].toUpperCase();
+  return str.charAt(0);
+}
+function dist(a,b,seed){
+  var p=HOOD_XY[a]||[0,0], q=HOOD_XY[b]||[0,0];
+  var d=Math.sqrt(Math.pow(p[0]-q[0],2)+Math.pow(p[1]-q[1],2));
+  // nobody lives at exactly the same point: a deterministic within-neighbourhood offset
+  if(seed!=null) d += 0.3 + (hashOf(String(seed))%23)/10;
+  return Math.round(d*10)/10;
+}
+function overlap(a,b){
+  var n=0; for(var i=0;i<a.length;i++){ if(b.indexOf(a[i])>-1) n++; }
+  return n;
+}
+function ratio(a,b){
+  if(!a.length||!b.length) return 0;
+  return overlap(a,b)/Math.min(a.length,b.length);
+}
+function clamp01(x){ return Math.max(0,Math.min(1,x)); }
+
+/* ---------- the matching formula ---------- */
+function score(p){
+  var energy = 1 - Math.abs(me.energy-p.energy)/4;
+  var social = Math.min(me.social,p.social)/5;
+  var size   = 1 - Math.abs(me.size-p.size)/2;
+  var pet    = 0.45*energy + 0.35*social + 0.20*size;
+
+  var d = dist(me.hood,p.hood,p.id);
+  var proximity = clamp01(1 - Math.min(d,12)/12);
+
+  var ints = ratio(me.interests,p.interests);
+  var acts = ratio(me.acts,p.acts);
+  var time = ratio(me.avail,p.avail);
+
+  var total = 30*pet + 25*proximity + 20*ints + 15*acts + 10*time;
+  return {
+    total: Math.round(total),
+    parts:[
+      {k:"Dog compatibility", w:30, v:pet, note:energyDesc(p)},
+      {k:"Distance", w:25, v:proximity, note:d+" km away"},
+      {k:"Shared interests", w:20, v:ints, note:sharedList(me.interests,p.interests)},
+      {k:"Same kind of outing", w:15, v:acts, note:sharedList(me.acts,p.acts)},
+      {k:"Schedules line up", w:10, v:time, note:sharedList(me.avail,p.avail)}
+    ],
+    km:d, ints:shared(me.interests,p.interests), acts:shared(me.acts,p.acts), times:shared(me.avail,p.avail)
+  };
+}
+function shared(a,b){ var o=[]; for(var i=0;i<a.length;i++){ if(b.indexOf(a[i])>-1) o.push(a[i]); } return o; }
+function sharedList(a,b){ var s=shared(a,b); return s.length? s.join(", ") : "nothing in common"; }
+function energyDesc(p){
+  var d=Math.abs(me.energy-p.energy);
+  if(d===0) return "identical energy levels";
+  if(d===1) return "similar energy";
+  if(d===2) return "one dog is calmer";
+  return "very different energy";
+}
+function whySentence(p,s){
+  var bits=[];
+  if(Math.abs(me.energy-p.energy)<=1) bits.push("your dogs run at about the same speed");
+  else bits.push((me.energy>p.energy? (p.dog+" is calmer than "+(me.dog||"yours")) : ((me.dog||"Your dog")+" is calmer than "+p.dog)));
+  if(s.km<=3) bits.push("you're "+s.km+" km apart");
+  else if(s.km<=7) bits.push("you're both on the same side of the river");
+  if(s.ints.length) bits.push("you're both into "+s.ints.slice(0,2).join(" and ").toLowerCase());
+  if(s.times.length) bits.push("you're both free "+s.times[0].toLowerCase());
+  if(s.acts.length) bits.push("and you'd both turn up to a "+s.acts[0].toLowerCase());
+  var str = bits.join(", ");
+  return str.charAt(0).toUpperCase()+str.slice(1)+".";
+}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+var FLOW_LABEL = {
+  "s-intent":"1 of 4","s-owner":"2 of 4","s-pet":"3 of 4","s-prefs":"4 of 4",
+  "s-discover":"Discover","s-match":"Match","s-activity":"Plan","s-meetup":"Plan","s-group":"Groups",
+  "s-feedback":"Questions","s-sessions":"Host"
+};
+var NEXT = {
+  "s-welcome":"s-intent","s-intent":"s-owner","s-owner":"s-pet","s-pet":"s-prefs","s-prefs":"s-discover",
+  "s-match":"s-activity","s-activity":"s-meetup","s-meetup":"s-group","s-group":"s-feedback"
+};
+var NEXT_LABEL = {
+  "s-prefs":"See who's nearby","s-match":"Plan something","s-activity":"Show me a plan",
+  "s-meetup":"I'm in — what else is on?","s-group":"A few questions for you"
+};
+var history_ = [];
+
+function go(id, push){
+  if(push!==false && id!==current) history_.push(current);
+  var prev=$(current); if(prev) prev.classList.remove("on");
+  current=id;
+  var next=$(id); next.classList.add("on"); next.scrollTop=0;
+  $("stepLabel").textContent = FLOW_LABEL[id]||"";
+  $("back").hidden = history_.length===0;
+  var showFooter = !!NEXT[id];
+  $("footer").style.display = showFooter ? "flex" : "none";
+  if(showFooter){ $("nextBtn").textContent = NEXT_LABEL[id]||"Continue"; }
+  if(id==="s-discover") buildDeck();
+  if(id==="s-group") renderGroups();
+  if(id==="s-done") renderLog();
+}
+$("nextBtn").addEventListener("click", function(){
+  if(current==="s-owner"){ me.name=$("oName").value.trim(); me.age=$("oAge").value; me.hood=$("oHood").value; }
+  if(current==="s-pet"){ me.dog=$("pName").value.trim(); me.breed=$("pBreed").value.trim(); me.dogAge=$("pAge").value; }
+  var n=NEXT[current]; if(n) go(n);
+});
+$("back").addEventListener("click", function(){
+  var p=history_.pop(); if(p){ go(p,false); $("back").hidden = history_.length===0; }
+});
+document.addEventListener("click", function(e){
+  var t=e.target.closest("[data-go]"); if(t) go(t.getAttribute("data-go"));
+});
+
+/* ============================================================
+   BUILD FORM CONTROLS
+   ============================================================ */
+function chipGroup(host, items, multi, onPick, preset){
+  host.innerHTML="";
+  items.forEach(function(item){
+    var b=el("button","chip",item);
+    b.type="button";
+    var on = multi ? (preset||[]).indexOf(item)>-1 : preset===item;
+    b.setAttribute("aria-pressed", on?"true":"false");
+    b.addEventListener("click", function(){
+      if(multi){
+        var now = b.getAttribute("aria-pressed")==="true";
+        b.setAttribute("aria-pressed", now?"false":"true");
+      }else{
+        Array.prototype.forEach.call(host.children,function(c){c.setAttribute("aria-pressed","false");});
+        b.setAttribute("aria-pressed","true");
+      }
+      onPick(collect(host,multi));
+    });
+    host.appendChild(b);
+  });
+}
+function collect(host, multi){
+  var out=[];
+  Array.prototype.forEach.call(host.children,function(c){
+    if(c.getAttribute("aria-pressed")==="true") out.push(c.textContent);
+  });
+  return multi? out : (out[0]||"");
+}
+function scaleGroup(host, onPick, preset){
+  host.innerHTML="";
+  for(var i=1;i<=5;i++){
+    (function(v){
+      var b=el("button",null,String(v)); b.type="button";
+      b.setAttribute("aria-pressed", v===preset?"true":"false");
+      b.addEventListener("click",function(){
+        Array.prototype.forEach.call(host.children,function(c){c.setAttribute("aria-pressed","false");});
+        b.setAttribute("aria-pressed","true"); onPick(v);
+      });
+      host.appendChild(b);
+    })(i);
+  }
+}
+
+chipGroup($("intentChips"), INTENTS, true, function(v){ me.intents=v; });
+chipGroup($("langChips"), LANGS, true, function(v){ me.langs=v; }, ["English"]);
+chipGroup($("interestChips"), INTERESTS, true, function(v){ me.interests=v; });
+chipGroup($("sizeChips"), ["Small","Medium","Large"], false, function(v){ me.size = v==="Small"?1:(v==="Large"?3:2); }, "Medium");
+chipGroup($("availChips"), AVAIL, true, function(v){ me.avail=v; });
+chipGroup($("actChips"), ACTIVITIES, true, function(v){ me.acts=v; });
+chipGroup($("groupChips"), ["Just me + one","3–4 people","5–8 people","Depends on the day"], false, function(v){ me.group=v; });
+scaleGroup($("energyScale"), function(v){ me.energy=v; }, 3);
+scaleGroup($("socialScale"), function(v){ me.social=v; }, 3);
+(function(){
+  var sel=$("oHood");
+  HOODS.forEach(function(h){ var o=el("option",null,h); sel.appendChild(o); });
+  sel.value="Xuhui";
+})();
+
+/* ============================================================
+   DECK
+   ============================================================ */
+function buildDeck(){
+  deckQueue = PEOPLE.map(function(p){ var s=score(p); return {p:p,s:s}; })
+    .sort(function(a,b){ return b.s.total-a.s.total; });
+  renderDeck();
+}
+function renderDeck(){
+  var deck=$("deck"); deck.innerHTML="";
+  $("deckCount").textContent = deckQueue.length? deckQueue.length+" nearby" : "";
+  if(!deckQueue.length){
+    var empty=el("div","card");
+    empty.style.cssText="display:grid;place-items:center;padding:30px;text-align:center";
+    var inner=el("div");
+    inner.appendChild(el("h2",null,"That's everyone for now"));
+    var pp=el("p","lede","In a real build this is where density matters. Twelve people in your neighbourhood is a product. Two is not.");
+    inner.appendChild(pp);
+    var b=el("button","btn","Go to the questions"); b.style.marginTop="16px";
+    b.addEventListener("click",function(){ go("s-feedback"); });
+    inner.appendChild(b);
+    empty.appendChild(inner); deck.appendChild(empty);
+    return;
+  }
+  var upto=Math.min(2,deckQueue.length);
+  for(var i=upto-1;i>=0;i--){
+    deck.appendChild(cardFor(deckQueue[i], i===0));
+  }
+  attachDrag();
+}
+function cardFor(entry, top){
+  var p=entry.p, s=entry.s;
+  var c=el("div","card"+(top?"":" behind"));
+  if(top) c.id="topCard";
+
+  var photo=el("div","photo");
+  photo.setAttribute("style", avatarStyle(p.dog+p.owner));
+  photo.appendChild(el("div","glyph", initial(p.dog)));
+  photo.appendChild(el("div","dist", s.km+" km · "+p.hood));
+  photo.appendChild(el("div","ph","photo placeholder"));
+  c.appendChild(photo);
+
+  var stampY=el("div","swipe-stamp yes","MEET"); stampY.setAttribute("data-stamp","yes");
+  var stampN=el("div","swipe-stamp no","PASS"); stampN.setAttribute("data-stamp","no");
+  c.appendChild(stampY); c.appendChild(stampN);
+
+  var body=el("div","body");
+  var pair=el("div","pair");
+  pair.appendChild(el("div","names", p.dog+" + "+p.owner));
+  pair.appendChild(el("div","meta", p.breed+" · "+p.dogAge+"y · "+p.age));
+  body.appendChild(pair);
+
+  var row1=el("div","rowline");
+  row1.appendChild(el("span","tag brand", "Energy "+p.energy+"/5"));
+  row1.appendChild(el("span","tag brand", "Social "+p.social+"/5"));
+  row1.appendChild(el("span","tag", p.size===1?"Small":(p.size===3?"Large":"Medium")));
+  body.appendChild(row1);
+
+  var row2=el("div","rowline");
+  p.interests.slice(0,3).forEach(function(i){ row2.appendChild(el("span","tag", i)); });
+  p.langs.slice(0,2).forEach(function(l){ row2.appendChild(el("span","tag", l)); });
+  body.appendChild(row2);
+
+  body.appendChild(el("div","wants", "“"+p.wants+"”"));
+  c.appendChild(body);
+  return c;
+}
+
+function decide(liked){
+  if(!deckQueue.length) return;
+  var entry=deckQueue.shift();
+  log.swipes.push({who:entry.p.dog+" + "+entry.p.owner, score:entry.s.total, liked:liked});
+  if(liked){
+    matchedPerson=entry.p; matchDetail=entry.s;
+    log.matched={who:entry.p.dog+" + "+entry.p.owner, score:entry.s.total};
+    renderMatch(); go("s-match"); renderDeck(); return;
+  }
+  renderDeck();
+}
+$("likeBtn").addEventListener("click",function(){ animateOut(1); });
+$("passBtn").addEventListener("click",function(){ animateOut(-1); });
+function animateOut(dir){
+  var c=$("topCard");
+  if(!c){ decide(dir>0); return; }
+  c.style.transition="transform .3s ease, opacity .3s ease";
+  c.style.transform="translateX("+(dir*460)+"px) rotate("+(dir*18)+"deg)";
+  c.style.opacity="0";
+  setTimeout(function(){ decide(dir>0); }, 230);
+}
+
+function attachDrag(){
+  var c=$("topCard"); if(!c) return;
+  var startX=0,startY=0,dx=0,dy=0,dragging=false;
+  var yes=c.querySelector('[data-stamp="yes"]'), no=c.querySelector('[data-stamp="no"]');
+  function down(e){
+    dragging=true; var pt=point(e); startX=pt.x; startY=pt.y; c.style.transition="none";
+  }
+  function move(e){
+    if(!dragging) return;
+    var pt=point(e); dx=pt.x-startX; dy=pt.y-startY;
+    if(Math.abs(dx)<Math.abs(dy)&&Math.abs(dy)>14) return;
+    if(e.cancelable) e.preventDefault();
+    c.style.transform="translate("+dx+"px,"+(dy*0.25)+"px) rotate("+(dx*0.045)+"deg)";
+    yes.style.opacity = dx>0? Math.min(1,dx/90) : 0;
+    no.style.opacity  = dx<0? Math.min(1,-dx/90) : 0;
+  }
+  function up(){
+    if(!dragging) return; dragging=false;
+    c.style.transition="transform .3s ease, opacity .3s ease";
+    if(Math.abs(dx)>90){ animateOut(dx>0?1:-1); }
+    else { c.style.transform=""; yes.style.opacity=0; no.style.opacity=0; }
+    dx=0; dy=0;
+  }
+  function point(e){ var t=e.touches&&e.touches[0]; return {x:(t?t.clientX:e.clientX),y:(t?t.clientY:e.clientY)}; }
+  c.addEventListener("mousedown",down); window.addEventListener("mousemove",move); window.addEventListener("mouseup",up);
+  c.addEventListener("touchstart",down,{passive:true});
+  c.addEventListener("touchmove",move,{passive:false});
+  c.addEventListener("touchend",up);
+}
+
+/* ============================================================
+   MATCH
+   ============================================================ */
+function renderMatch(){
+  var p=matchedPerson, s=matchDetail;
+  var faces=$("matchFaces"); faces.innerHTML="";
+  var a=el("div","ava"); a.setAttribute("style", avatarStyle((me.dog||"You")+me.hood));
+  a.appendChild(el("div","glyph", initial(me.dog||"Y")));
+  var b=el("div","ava"); b.setAttribute("style", avatarStyle(p.dog+p.owner));
+  b.appendChild(el("div","glyph", initial(p.dog)));
+  faces.appendChild(a); faces.appendChild(b);
+
+  $("matchNames").textContent = (me.dog||"Your dog")+" + "+p.dog+" · "+p.hood+" · "+s.km+" km";
+  $("whyText").textContent = whySentence(p,s);
+
+  var n=0, target=s.total;
+  var num=$("scoreNum");
+  num.innerHTML="0<small>%</small>";
+  var t=setInterval(function(){
+    n+=Math.max(1,Math.round(target/22));
+    if(n>=target){ n=target; clearInterval(t); }
+    num.innerHTML=n+"<small>%</small>";
+  },24);
+
+  var bars=$("scoreBars"); bars.innerHTML="";
+  s.parts.forEach(function(part){
+    var row=el("div","bar-row");
+    var l=el("div","lbl"); l.innerHTML="<b>"+part.k+"</b> <span style='color:var(--ink-3)'>— "+part.note+"</span>";
+    row.appendChild(l);
+    row.appendChild(el("div","val", Math.round(part.v*part.w)+"/"+part.w));
+    var track=el("div","bar-track"); var fill=el("div","bar-fill");
+    fill.style.width="0%"; track.appendChild(fill); row.appendChild(track);
+    bars.appendChild(row);
+    setTimeout(function(){ fill.style.width=(part.v*100)+"%"; },60);
+  });
+}
+
+/* ============================================================
+   ACTIVITY + MEETUP
+   ============================================================ */
+var ACT_SUB = {
+  "Long walk":"An hour plus, proper distance","Short walk":"25 minutes, ends somewhere",
+  "Dog park":"Off-lead, let them sort it out","Café":"Sit down, dogs under the table",
+  "Brunch":"Weekend, slow, outdoor table","Group walk":"Four to six people","Hiking day":"Out of the city, whole morning"
+};
+(function(){
+  var grid=$("activityGrid");
+  ACTIVITIES.forEach(function(a){
+    var b=el("button","act"); b.type="button"; b.setAttribute("aria-pressed","false");
+    b.appendChild(el("div","t",a));
+    b.appendChild(el("div","s",ACT_SUB[a]||""));
+    b.addEventListener("click",function(){
+      Array.prototype.forEach.call(grid.children,function(c){c.setAttribute("aria-pressed","false");});
+      b.setAttribute("aria-pressed","true");
+      log.chosenActivity=a;
+      buildMeetup(a);
+      setTimeout(function(){ go("s-meetup"); },180);
+    });
+    grid.appendChild(b);
+  });
+})();
+
+function buildMeetup(act){
+  var p=matchedPerson||PEOPLE[0], s=matchDetail||score(p);
+  var list=VENUES[act]||VENUES["Dog park"];
+  var pick=list[0];
+  for(var i=0;i<list.length;i++){
+    if(list[i].hood===me.hood || list[i].hood===p.hood){ pick=list[i]; break; }
+  }
+  var when = shared(me.avail,p.avail)[0] || p.avail[0] || "Weekend morning";
+  var timeMap={"Weekday morning":"Tue 07:00","Weekday evening":"Thu 19:00","Weekend morning":"Sat 09:30","Weekend afternoon":"Sat 16:00"};
+  var slot=timeMap[when]||"Sat 16:00";
+
+  $("meetupTitle").textContent = slot.split(" ")[0]==="Sat"? "Saturday it is." : "Here's the plan.";
+  $("planWhen").textContent = slot.toUpperCase()+" · "+act.toUpperCase();
+  $("planWhere").textContent = pick.n;
+  $("planWhy").textContent = pick.why;
+  $("planTravel").textContent = pick.hood+" — about "+Math.max(1,Math.round(s.km*4))+" min for you, and "+
+    Math.max(1,Math.round(dist(p.hood,pick.hood)*4))+" min for "+p.owner.split(" ")[0]+".";
+  $("planAfter").textContent = act==="Café"||act==="Brunch"
+    ? "Walk the long way back through the plane trees if it stays dry."
+    : "Coffee two streets over if it goes well. No pressure if it doesn't.";
+
+  var who=$("planWho"); who.innerHTML="";
+  [{dog:me.dog||"You",owner:me.name||"You",hood:me.hood},p].forEach(function(x){
+    var cell=el("div","p");
+    var av=el("div","ava"); av.setAttribute("style", avatarStyle(x.dog+x.hood));
+    av.appendChild(el("div","glyph", initial(x.dog)));
+    cell.appendChild(av);
+    cell.appendChild(el("div","n", x.dog));
+    who.appendChild(cell);
+  });
+}
+
+/* ============================================================
+   GROUPS
+   ============================================================ */
+function renderGroups(){
+  var host=$("groupList"); host.innerHTML="";
+  var ranked = GROUPS.slice().sort(function(a,b){
+    return overlap(b.tags, me.avail.concat(me.acts)) - overlap(a.tags, me.avail.concat(me.acts));
+  });
+  ranked.forEach(function(g){
+    var card=el("div","group-card");
+    var top=el("div"); top.style.cssText="display:flex;justify-content:space-between;gap:10px;align-items:flex-start";
+    var left=el("div");
+    left.appendChild(el("h3",null,g.name));
+    var w=el("div","muted",g.when); w.style.marginTop="2px"; left.appendChild(w);
+    top.appendChild(left);
+    var fit=overlap(g.tags, me.avail.concat(me.acts));
+    if(fit>0){ var badge=el("span","tag brand", fit>1?"Good fit":"Might suit"); top.appendChild(badge); }
+    card.appendChild(top);
+    card.appendChild(el("p",null,g.note));
+    var sp=el("div","spots");
+    for(var i=0;i<g.size;i++){ var d=el("div","spot"+(i<g.filled?" filled":"")); sp.appendChild(d); }
+    var lbl=el("span","muted", g.filled+" of "+g.size+" spots"); lbl.style.marginLeft="8px"; sp.appendChild(lbl);
+    card.appendChild(sp);
+    var btn=el("button","btn ghost small","Join this");
+    btn.addEventListener("click",function(){
+      btn.textContent="You're in ·"+" "+(g.filled+1)+"/"+g.size;
+      btn.disabled=true;
+      log.answers["joined_group"]=g.name;
+    });
+    card.appendChild(btn);
+    host.appendChild(card);
+  });
+}
+
+/* ============================================================
+   FEEDBACK
+   ============================================================ */
+var QUESTIONS = [
+ {id:"profile", q:"Would you actually create a profile like this?", o:["Yes","Maybe","No"]},
+ {id:"attend",  q:"Would you turn up to the meetup it suggested?", o:["Yes","Maybe","No"]},
+ {id:"invite",  q:"Would you invite a dog-owning friend to it?", o:["Yes","Maybe","No"]},
+ {id:"nextmonth", q:"Would you still be opening this next month?", o:["Yes","Maybe","No"]},
+ {id:"pay",     q:"Would you pay RMB 29/month for a premium version?", o:["Yes","Maybe","No"]},
+ {id:"size",    q:"One-on-one, or a group of four to eight?", o:["One-on-one","Group of 4–8","Depends"]},
+ {id:"platform",q:"Where would you want this to live?", o:["WeChat Mini Program","A real app","Website","Don't mind"]},
+ {id:"focus",   q:"Which mattered more on the match screen?", o:["The dog","The person","Both equally"]},
+ {id:"need",    q:"What would you need to know before meeting a stranger?", type:"text"},
+ {id:"concern", q:"What's your biggest hesitation about the whole thing?", type:"text"},
+ {id:"today",   q:"How do you find dog people now, if at all?", type:"text"}
+];
+(function(){
+  var host=$("qList");
+  QUESTIONS.forEach(function(q,i){
+    var wrap=el("div","q");
+    var n=el("div","qn", String(i+1).padStart(2,"0"));
+    wrap.appendChild(n);
+    wrap.appendChild(el("div","qt", q.q));
+    if(q.type==="text"){
+      var ta=el("textarea"); ta.id="q-"+q.id; ta.rows=3;
+      ta.style.cssText="width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);resize:vertical";
+      ta.addEventListener("input",function(){ log.answers[q.id]=ta.value; });
+      wrap.appendChild(ta);
+    }else{
+      var opts=el("div","opts");
+      q.o.forEach(function(o){
+        var b=el("button","opt",o); b.type="button"; b.setAttribute("aria-pressed","false");
+        b.addEventListener("click",function(){
+          Array.prototype.forEach.call(opts.children,function(c){c.setAttribute("aria-pressed","false");});
+          b.setAttribute("aria-pressed","true"); log.answers[q.id]=o;
+        });
+        opts.appendChild(b);
+      });
+      wrap.appendChild(opts);
+    }
+    host.appendChild(wrap);
+  });
+})();
+
+/* ============================================================
+   ARCHIVE — every completed session, stored on this device
+   ============================================================ */
+function readArchive(){
+  try{ return JSON.parse(localStorage.getItem(ARCHIVE_KEY)||"[]"); }catch(e){ return []; }
+}
+function writeArchive(arr){
+  try{ localStorage.setItem(ARCHIVE_KEY, JSON.stringify(arr)); return true; }catch(e){ return false; }
+}
+function sessionRecord(){
+  var likes=0, passes=0, top=null;
+  log.swipes.forEach(function(s){
+    if(s.liked) likes++; else passes++;
+    if(!top||s.score>top.score) top=s;
+  });
+  return {
+    ts:new Date().toISOString(),
+    name:me.name, age:me.age, hood:me.hood,
+    dog:me.dog, breed:me.breed, dogAge:me.dogAge,
+    size:me.size, energy:me.energy, social:me.social,
+    langs:me.langs.slice(), interests:me.interests.slice(),
+    avail:me.avail.slice(), acts:me.acts.slice(), group:me.group,
+    intents:me.intents.slice(),
+    likes:likes, passes:passes,
+    topMatch: log.matched? log.matched.who : (top? top.who : ""),
+    topScore: log.matched? log.matched.score : (top? top.score : ""),
+    activity: log.chosenActivity,
+    joinedGroup: log.answers.joined_group||"",
+    answers: JSON.parse(JSON.stringify(log.answers)),
+    swipes: log.swipes.slice()
+  };
+}
+function csvCell(v){
+  if(v==null) v="";
+  if(Object.prototype.toString.call(v)==="[object Array]") v=v.join(" | ");
+  v=String(v);
+  return '"'+v.replace(/"/g,'""')+'"';
+}
+function archiveCSV(){
+  var rows=readArchive();
+  var base=["when","name","age","neighbourhood","dog","breed","dog_age","size_1_3","energy_1_5","social_1_5",
+            "languages","interests","free_when","would_do","group_pref","looking_for",
+            "likes","passes","top_match","top_score","activity_chosen","group_joined"];
+  var qids=QUESTIONS.map(function(q){ return q.id; });
+  var head=base.concat(qids);
+  var out=[head.map(csvCell).join(",")];
+  rows.forEach(function(r){
+    var line=[r.ts,r.name,r.age,r.hood,r.dog,r.breed,r.dogAge,r.size,r.energy,r.social,
+              r.langs,r.interests,r.avail,r.acts,r.group,r.intents,
+              r.likes,r.passes,r.topMatch,r.topScore,r.activity,r.joinedGroup];
+    qids.forEach(function(id){ line.push((r.answers&&r.answers[id])||""); });
+    out.push(line.map(csvCell).join(","));
+  });
+  return "﻿"+out.join("\n");
+}
+function archiveText(){
+  var rows=readArchive();
+  if(!rows.length) return "No sessions recorded on this device.";
+  return rows.map(function(r,i){
+    return "════ SESSION "+(i+1)+" — "+new Date(r.ts).toLocaleString()+" ════\n"+recordText(r);
+  }).join("\n\n");
+}
+function recordText(r){
+  var lines=[];
+  lines.push((r.name||"(no name)")+", "+r.age+", "+r.hood);
+  lines.push("Dog: "+(r.dog||"(blank)")+" — "+(r.breed||"breed blank")+", "+r.dogAge+
+             " · size "+r.size+"/3 · energy "+r.energy+"/5 · social "+r.social+"/5");
+  lines.push("Languages: "+(r.langs.join(", ")||"—"));
+  lines.push("Interests: "+(r.interests.join(", ")||"—"));
+  lines.push("Free: "+(r.avail.join(", ")||"—")+"  ·  Would do: "+(r.acts.join(", ")||"—"));
+  lines.push("Group size: "+(r.group||"—"));
+  lines.push("Looking for: "+(r.intents.join(" / ")||"(nothing selected)"));
+  lines.push("Swipes: "+r.likes+" met, "+r.passes+" passed"+(r.topMatch? "  ·  matched "+r.topMatch+" at "+r.topScore+"%" : ""));
+  lines.push("Activity: "+(r.activity||"none")+"  ·  Group joined: "+(r.joinedGroup||"none"));
+  lines.push("");
+  QUESTIONS.forEach(function(q){
+    lines.push(q.q);
+    lines.push("   > "+((r.answers&&r.answers[q.id])||"(no answer)"));
+  });
+  return lines.join("\n");
+}
+
+/* ---------- copy helper ---------- */
+function copyFrom(ta, msgEl){
+  ta.hidden=false; ta.focus(); ta.select();
+  var done=false;
+  try{ done=document.execCommand("copy"); }catch(e){}
+  if(!done && navigator.clipboard){
+    navigator.clipboard.writeText(ta.value).then(
+      function(){ msgEl.textContent="Copied."; },
+      function(){ msgEl.textContent="Select the text below and copy it."; });
+    return;
+  }
+  msgEl.textContent = done? "Copied." : "Select the text below and copy it.";
+}
+
+/* ============================================================
+   SESSION LOG (the one just finished)
+   ============================================================ */
+var savedThisRun=false;
+function renderLog(){
+  var rec=sessionRecord();
+  var arr=readArchive();
+  if(savedThisRun && arr.length){ arr[arr.length-1]=rec; }   // revisiting the last screen updates, never duplicates
+  else { arr.push(rec); savedThisRun=true; }
+  var saved=writeArchive(arr);
+  $("sessionNo").textContent=arr.length;
+  $("sessionTotal").textContent=arr.length;
+
+  var payload=recordText(rec);
+  var btn=$("submitBtn"), msg=$("submitMsg");
+  msg.textContent="";
+
+  if(FORM_ACTION){
+    $("doneLede").textContent="One last thing — send your answers over so we can actually read them.";
+    btn.hidden=false; btn.disabled=false; btn.textContent="Send my answers";
+    btn.onclick=function(){
+      btn.disabled=true; btn.textContent="Sending…";
+      var fd=new FormData(); fd.append(FORM_FIELD, payload);
+      fetch(FORM_ACTION,{method:"POST",mode:"no-cors",body:fd}).then(function(){
+        btn.textContent="Sent — thank you";
+        msg.textContent="A copy is also saved on this device, just in case.";
+      },function(){
+        btn.disabled=false; btn.textContent="Try again";
+        msg.textContent="That didn't go through. Open the section below and send us the text instead.";
+      });
+    };
+  } else if(FORM_LINK){
+    $("doneLede").textContent="One last thing — send your answers over. The form opens with everything already filled in; just press submit.";
+    btn.hidden=false; btn.textContent="Send my answers";
+    btn.onclick=function(){
+      window.open(FORM_LINK+encodeURIComponent(payload),"_blank");
+      btn.textContent="Opened the form";
+      msg.textContent="Press submit on that page to finish.";
+    };
+  } else {
+    $("sendBox").hidden=true;
+    $("localNote").hidden=false;
+    $("doneLede").textContent = saved
+      ? "Your answers are saved on this device. Nothing was sent anywhere."
+      : "This browser won't let the page save anything, so copy the text below before closing it.";
+  }
+  var lines=[];
+  lines.push("PACK — PROTOTYPE TEST SESSION");
+  lines.push(new Date().toLocaleString());
+  lines.push("");
+  lines.push(recordText(rec));
+  $("logOut").value=lines.join("\n");
+}
+$("copyBtn").addEventListener("click", function(){
+  copyFrom($("logOut"), $("copyMsg"));
+});
+$("restartBtn").addEventListener("click", function(){
+  location.reload();
+});
+
+/* ============================================================
+   HOST VIEW — triple-tap the wordmark
+   ============================================================ */
+(function(){
+  var taps=0, timer=null;
+  document.querySelector(".wordmark").addEventListener("click", function(){
+    taps++;
+    clearTimeout(timer);
+    timer=setTimeout(function(){ taps=0; }, 700);
+    if(taps>=3){ taps=0; renderSessions(); go("s-sessions"); }
+  });
+})();
+
+function renderSessions(){
+  var rows=readArchive();
+  var host=$("sessList"); host.innerHTML="";
+  $("sessMsg").textContent="";
+  $("sessOut").hidden=true;
+
+  if(!rows.length){
+    $("sessSummary").textContent="Nothing recorded on this device yet. Finish a run and it lands here.";
+    return;
+  }
+  var yes=0, would=0, pay=0, invite=0;
+  rows.forEach(function(r){
+    var a=r.answers||{};
+    if(a.profile==="Yes") yes++;
+    if(a.attend==="Yes") would++;
+    if(a.pay==="Yes") pay++;
+    if(a.invite==="Yes") invite++;
+  });
+  $("sessSummary").textContent = rows.length+" session"+(rows.length>1?"s":"")+
+    " · "+yes+" would make a profile · "+would+" would turn up · "+invite+" would invite a friend · "+pay+" would pay.";
+
+  rows.slice().reverse().forEach(function(r, i){
+    var n=rows.length-i;
+    var card=el("div","group-card");
+    var top=el("div"); top.style.cssText="display:flex;justify-content:space-between;gap:10px;align-items:flex-start";
+    var left=el("div");
+    left.appendChild(el("h3",null,"#"+n+"  "+(r.name||"(no name)")+" + "+(r.dog||"(no dog)")));
+    var w=el("div","muted", new Date(r.ts).toLocaleString()+" · "+r.hood);
+    w.style.marginTop="2px"; left.appendChild(w);
+    top.appendChild(left);
+    var a=r.answers||{};
+    if(a.profile){ top.appendChild(el("span","tag"+(a.profile==="Yes"?" brand":""), a.profile)); }
+    card.appendChild(top);
+    var facts=el("div","rowline");
+    if(r.topScore!=="") facts.appendChild(el("span","tag","matched "+r.topScore+"%"));
+    if(r.activity) facts.appendChild(el("span","tag",r.activity));
+    if(a.size) facts.appendChild(el("span","tag",a.size));
+    if(a.platform) facts.appendChild(el("span","tag",a.platform));
+    card.appendChild(facts);
+    if(a.concern){ card.appendChild(el("p","muted","Hesitation: "+a.concern)); }
+    host.appendChild(card);
+  });
+}
+$("csvBtn").addEventListener("click", function(){
+  $("sessOut").value=archiveCSV();
+  copyFrom($("sessOut"), $("sessMsg"));
+});
+$("txtBtn").addEventListener("click", function(){
+  $("sessOut").value=archiveText();
+  copyFrom($("sessOut"), $("sessMsg"));
+});
+$("clearBtn").addEventListener("click", function(){
+  var rows=readArchive();
+  if(!rows.length) return;
+  if(!window.confirm("Delete all "+rows.length+" sessions from this device? Copy them out first — this cannot be undone.")) return;
+  writeArchive([]);
+  renderSessions();
+  $("sessMsg").textContent="Cleared.";
+});
+
+go("s-welcome", false);
+history_=[];
+$("back").hidden=true;
+})();
+</script>
+
+</body>
+</html>
